@@ -5,47 +5,87 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Happy 1 Month, Tvisha</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
-<style>
-  /* ─── ROTATE PROMPT (portrait mobile) ─── */
-#rotate-prompt svg {
-  width: 60px;
-  margin-bottom: 1.5rem;
-  animation: rotateHint 2s ease-in-out infinite;
-}
-@keyframes rotateHint {
-  0%, 100% { transform: rotate(0deg); }
-  50% { transform: rotate(90deg); }
-}
-#rotate-prompt p {
-  font-size: 1.2rem;
-  color: #a38c62;
-  font-style: italic;
-}
 
-@media (orientation: portrait) and (max-width: 900px) {
-  #rotate-prompt { display: flex; }
-}
-@media (orientation: landscape) and (max-height: 500px) {
-  /* Mobile landscape — scale book to fit */
-  .scene {
-    width: 98vw;
-    height: 92vh;
-    max-width: none;
-    max-height: none;
+<style>
+  /* ─── RESPONSIVE MOBILE & ROTATE PROMPT ─── */
+  #rotate-prompt {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #1a1a1a;
+    z-index: 99999;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #dfc28d;
+    font-family: 'Lora', serif;
+    text-align: center;
+    padding: 2rem;
   }
-  .page-content {
-    padding: 1.2rem;
+  #rotate-prompt svg {
+    width: 60px;
+    margin-bottom: 1.5rem;
+    animation: rotateHint 2s ease-in-out infinite;
   }
-  h2 { font-size: 1.6rem; }
-  .cover-front h1 { font-size: 2.2rem; }
-  .date-label { font-size: 0.85rem; }
-  .journal-text { font-size: 0.95rem; }
-  .global-arrow { width: 44px; height: 44px; font-size: 1.3rem; }
-  .polaroid-frame img { max-height: 28vh; }
-  .index-list li { font-size: 0.95rem; }
-  .proposal-special h2 { font-size: 2rem; }
-  .proposal-special .quote { font-size: 1rem; }
-}
+  @keyframes rotateHint {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(90deg); }
+  }
+  #rotate-prompt p {
+    font-size: 1.2rem;
+    color: #a38c62;
+    font-style: italic;
+  }
+
+  /* Force landscape on mobile devices */
+  @media (orientation: portrait) and (max-width: 900px) {
+    #rotate-prompt { display: flex !important; }
+    .scene, #global-controls { display: none !important; }
+    body { overflow: hidden; }
+  }
+
+  /* Mobile Landscape - Scale Book to Fit */
+  @media (orientation: landscape) and (max-height: 600px), 
+         (orientation: landscape) and (max-width: 950px) {
+    .scene {
+      width: 96vw;
+      height: 94vh;
+      max-width: none;
+      max-height: none;
+    }
+    .page-content { padding: 1rem; }
+    h2 { font-size: 1.5rem; margin-bottom: 0.1rem; }
+    .cover-front h1 { font-size: 2rem; }
+    .date-label { font-size: 0.8rem; margin-bottom: 0.5rem; padding-bottom: 0.2rem; }
+    
+    /* Shrink Text & Journal Grids */
+    .journal-text { font-size: 0.95rem; line-height: 22px; margin-top: 10px; }
+    .ruled-lines { 
+      background: repeating-linear-gradient( transparent, transparent 21px, #d6ccc0 21px, #d6ccc0 22px ); 
+      line-height: 22px; 
+      margin-bottom: 1rem;
+    }
+    
+    /* Resize UI and Images */
+    .global-arrow { width: 40px; height: 40px; font-size: 1.2rem; }
+    .polaroid-frame { padding: 8px 8px 15px 8px; }
+    .polaroid-frame img { max-height: 45vh; }
+    .polaroid-caption { font-size: 0.9rem; margin-top: 8px; }
+    .photo-booth img { max-height: 55vh; }
+    .index-list li { font-size: 0.9rem; margin-bottom: 0.5rem; }
+    
+    /* Resize Final Proposal Page */
+    .proposal-special { padding: 1rem; }
+    .proposal-special h2 { font-size: 1.8rem; }
+    .proposal-special .quote { font-size: 1rem; }
+    #btn-yes, #btn-no { padding: 5px 15px; font-size: 0.9rem; }
+    .proposal-photo-frame img { max-height: 35vh; }
+    
+    /* Scale down decorations so they don't cover text */
+    .lily-deco { width: 50px; height: 50px; }
+    .line-art { transform: scale(0.6); transform-origin: center; }
+  }
+
   /* ─── BASE RESET & SETUP ─── */
   *, *::before, *::after {
     box-sizing: border-box;
@@ -215,20 +255,6 @@
   .all-drawings-bg { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; opacity: 0.55; }
   .mini-art { position: absolute; transform: scale(0.4); opacity: 0.7; }
   .mini-flower { position: absolute; opacity: 0.6; width: 45px; }
-#rotate-prompt {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: #1a1a1a;
-  z-index: 99999;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: #dfc28d;
-  font-family: 'Lora', serif;
-  text-align: center;
-  padding: 2rem;
-}
 </style>
 </head>
 <body>
