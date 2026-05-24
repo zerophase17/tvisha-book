@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy 1 Month, Tvisha</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  /* ─── ROTATE PROMPT (portrait mobile) ─── */
+#rotate-prompt {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #1a1a1a;
+  z-index: 99999;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #dfc28d;
+  font-family: 'Lora', serif;
+  text-align: center;
+  padding: 2rem;
+}
+#rotate-prompt svg {
+  width: 60px;
+  margin-bottom: 1.5rem;
+  animation: rotateHint 2s ease-in-out infinite;
+}
+@keyframes rotateHint {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(90deg); }
+}
+#rotate-prompt p {
+  font-size: 1.2rem;
+  color: #a38c62;
+  font-style: italic;
+}
+
+@media (orientation: portrait) and (max-width: 900px) {
+  #rotate-prompt { display: flex; }
+}
+@media (orientation: landscape) and (max-height: 500px) {
+  /* Mobile landscape — scale book to fit */
+  .scene {
+    width: 98vw;
+    height: 92vh;
+    max-width: none;
+    max-height: none;
+  }
+  .page-content {
+    padding: 1.2rem;
+  }
+  h2 { font-size: 1.6rem; }
+  .cover-front h1 { font-size: 2.2rem; }
+  .date-label { font-size: 0.85rem; }
+  .journal-text { font-size: 0.95rem; }
+  .global-arrow { width: 44px; height: 44px; font-size: 1.3rem; }
+  .polaroid-frame img { max-height: 28vh; }
+  .index-list li { font-size: 0.95rem; }
+  .proposal-special h2 { font-size: 2rem; }
+  .proposal-special .quote { font-size: 1rem; }
+}
+  /* ─── BASE RESET & SETUP ─── */
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: #1a1a1a;
+    background-image: radial-gradient(circle at center, #2e2e2e 0%, #111 100%);
+    font-family: 'Lora', serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    overflow: hidden;
+    color: #332b26;
+    user-select: none;
+  }
+
+  /* ─── MAGICAL LOCK SCREEN & ERROR SCREEN ─── */
+  #lock-screen {
+    position: fixed; inset: 0; 
+    background: rgba(15, 15, 15, 0.95);
+    backdrop-filter: blur(15px);
+    z-index: 10000; display: flex; justify-content: center; align-items: center;
+    text-align: center; color: #dfc28d; transition: opacity 1.5s ease, visibility 1.5s ease;
+  }
+  .lock-content {
+    border: 1px solid rgba(223, 194, 141, 0.3); padding: 4rem; border-radius: 10px;
+    background: rgba(0, 0, 0, 0.4); box-shadow: 0 0 40px rgba(0,0,0,0.8);
+    display: flex; flex-direction: column; align-items: center; width: 90%; max-width: 500px;
+  }
+  .lock-content h2 { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: #e6cc98; margin: 10px 0; border: none; }
+  .lock-content p { color: #a38c62; font-style: italic; margin-bottom: 2rem; font-size: 1.1rem; }
+  
+  #secret-key {
+    background: transparent; border: none; border-bottom: 2px solid rgba(223, 194, 141, 0.5);
+    color: #fff; font-size: 1.2rem; padding: 10px; width: 100%; text-align: center;
+    font-family: 'Lora', serif; outline: none; transition: border-color 0.3s;
+  }
+  #secret-key:focus { border-color: #dfc28d; }
+  #secret-key::placeholder { color: rgba(223, 194, 141, 0.4); }
+  .lock-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+  /* Error Screen Styles */
+  #error-screen {
+    display: none; flex-direction: column; align-items: center; justify-content: center;
+    background: rgba(50, 0, 0, 0.98); position: absolute; inset: 0; z-index: 10001;
+  }
+  #error-screen h1 { color: #e63946; font-size: 3rem; margin-bottom: 1rem; font-family: 'Playfair Display', serif; text-transform: uppercase; letter-spacing: 2px; }
+  #error-screen p { color: #fdf8f2; font-size: 1.3rem; margin-bottom: 2.5rem; text-align: center; max-width: 80%; line-height: 1.6; }
+  .reload-btn {
+    background: transparent; border: 2px solid #e63946; color: #e63946; padding: 12px 30px;
+    font-size: 1.2rem; cursor: pointer; border-radius: 5px; transition: all 0.3s;
+    font-family: 'Lora', serif; text-transform: uppercase; letter-spacing: 1px;
+  }
+  .reload-btn:hover { background: #e63946; color: #fff; box-shadow: 0 0 15px rgba(230, 57, 70, 0.5); }
+
+  /* ─── BULLETPROOF GLOBAL NAVIGATION ARROWS ─── */
+  #global-controls {
+    position: fixed; top: 50%; left: 0; width: 100%;
+    display: flex; justify-content: space-between; padding: 0 3vw;
+    transform: translateY(-50%); z-index: 9999; pointer-events: none; 
+  }
+  .global-arrow {
+    pointer-events: auto; width: 60px; height: 60px; border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #e6cc98; font-size: 1.8rem; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; backdrop-filter: blur(5px); transition: all 0.3s ease;
+  }
+  .global-arrow:hover { background: rgba(255, 255, 255, 0.15); transform: scale(1.1); color: #fff; }
+
+  /* ─── AMBIENT CANVAS (SNOW / STARS / RAIN / ICE / HEARTS) ─── */
+  #ambient-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity 1.5s ease-in-out; z-index: 1; }
+  #ambient-canvas.active { opacity: 1; }
+
+  /* ─── 3D BOOK CONTAINER ─── */
+  .scene { width: 90vw; max-width: 1000px; height: 75vh; max-height: 600px; perspective: 1500px; display: flex; justify-content: center; align-items: center; z-index: 10; }
+  .book { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; }
+
+  /* ─── THE PAGES ─── */
+  .paper { position: absolute; width: 50%; height: 100%; top: 0; right: 0; transform-style: preserve-3d; transform-origin: left center; transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1); pointer-events: none; }
+  .front, .back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; background-color: #f5f0e6; pointer-events: auto; overflow: hidden; }
+  .front { background: linear-gradient(to right, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0) 8%), #f5f0e6; }
+  .back { transform: rotateY(180deg); background: linear-gradient(to left, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0) 8%), #f5f0e6; }
+  .flipped { transform: rotateY(-180deg); }
+
+  /* ─── INNER PAGE LAYOUT ─── */
+  .page-content { width: 100%; height: 100%; padding: 3rem; display: flex; flex-direction: column; position: relative; z-index: 2; }
+  
+  /* ─── COVER STYLING ─── */
+  .cover-front { background-color: #2b3a42; color: #e6cc98; border: 8px solid #1f2a30; background-image: linear-gradient(to right, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 5%); }
+  .cover-front .page-content { justify-content: center; align-items: center; text-align: center; }
+  .cover-front h1 { font-family: 'Playfair Display', serif; font-size: 3.5rem; font-style: italic; font-weight: 400; line-height: 1.1; }
+  .subtitle { font-size: 1rem; letter-spacing: 0.2em; text-transform: uppercase; color: #c4a977; margin-top: 1rem; }
+  .inside-cover { background-color: #1f2a30; }
+
+  /* ─── TYPOGRAPHY ─── */
+  h2 { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-weight: 400; color: #2c2520; margin-bottom: 0.3rem; }
+  .date-label { font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.1rem; color: #7a6e65; margin-bottom: 1.5rem; border-bottom: 1px solid #d6ccc0; padding-bottom: 0.5rem; }
+
+  /* ─── INDEX PAGE ─── */
+  .index-list { list-style: none; margin-top: 1rem; }
+  .index-list li { display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 1.2rem; cursor: pointer; border-bottom: 1px dotted #a3998f; padding-bottom: 5px; transition: all 0.3s; }
+  .index-list li:hover { color: #a88444; border-bottom-color: #a88444; transform: translateX(5px); }
+
+  /* ─── POLAROID PHOTO FRAME ─── */
+  .polaroid-frame { background: #ffffff; padding: 15px 15px 25px 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: auto; max-width: 90%; transform: rotate(-2deg); position: relative; z-index: 2; }
+  .polaroid-frame img { width: 100%; height: auto; max-height: 35vh; object-fit: cover; border: 1px solid #e0e0e0; }
+  .polaroid-caption { font-family: 'Lora', serif; font-style: italic; font-size: 1.15rem; color: #4a4038; margin-top: 15px; text-align: center; line-height: 1.4; }
+
+  /* ─── LONG PHOTO BOOTH STRIPS ─── */
+  .photo-booth { background: #ffffff; padding: 10px 10px 20px 10px; box-shadow: 2px 5px 15px rgba(0,0,0,0.15); margin: 10px auto; position: relative; z-index: 5; }
+  .photo-booth img { width: 100%; height: auto; max-height: 50vh; object-fit: cover; filter: grayscale(100%); display: block; background: #e0e0e0; }
+
+  /* ─── RULED TEXT LINES ─── */
+  .ruled-lines { flex-grow: 1; background: repeating-linear-gradient( transparent, transparent 31px, #d6ccc0 31px, #d6ccc0 32px ); line-height: 32px; font-size: 1.15rem; color: #2b3a42; padding-top: 2px; margin-bottom: 2rem; position: relative; z-index: 2; }
+  .journal-text { font-family: 'Lora', serif; font-style: italic; color: #4a4038; font-size: 1.25rem; line-height: 32px; margin-top: 28px; }
+  
+  /* ─── EXTRA SPECIAL PROPOSAL PAGE STYLING ─── */
+  .proposal-special { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; height: 100%; margin: 0; padding: 2rem; border: 2px solid #dfc28d; background: radial-gradient(circle, #fdf8f2 0%, #f4e8d8 100%); position: relative; box-shadow: inset 0 0 20px rgba(0,0,0,0.05); overflow: hidden; }
+  .proposal-special::before, .proposal-special::after { content: "❀"; position: absolute; font-size: 1.5rem; color: #dfc28d; z-index: 5; }
+  .proposal-special::before { top: 10px; left: 15px; }
+  .proposal-special::after { bottom: 10px; right: 15px; }
+  .proposal-special h2 { color: #a13d4b; font-size: 3.2rem; font-style: italic; border: none; margin-bottom: 0; position: relative; z-index: 5; text-shadow: 0 0 10px #fdf8f2; }
+  .proposal-special .date-label { color: #b8935c; font-size: 1.3rem; border-bottom: none; letter-spacing: 2px; margin-bottom: 1rem; position: relative; z-index: 5; }
+  .proposal-special .quote { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #6e4e4e; line-height: 1.6; margin-top: 0.5rem; margin-bottom: 0.5rem; font-style: italic; position: relative; z-index: 5; background: rgba(253, 248, 242, 0.6); padding: 5px 10px; border-radius: 10px; }
+  
+  /* Interactive Buttons */
+  #btn-yes, #btn-no { background: #dfc28d; color: #1f2a30; border: none; padding: 8px 25px; font-family: 'Lora', serif; font-size: 1.1rem; font-weight: 600; border-radius: 5px; cursor: pointer; transition: transform 0.3s ease, background 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 5; position: relative; }
+  #btn-yes:hover { background: #c4a977; transform: scale(1.05); }
+  #btn-no { background: #e07a5f; color: #fff; transform-origin: center center; }
+  
+  .proposal-photo-frame { flex-grow: 1; width: 100%; border: 3px double #dfc28d; background: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #a13d4b; font-style: italic; font-size: 1.2rem; box-shadow: 0 5px 20px rgba(161, 61, 75, 0.1); position: relative; z-index: 2; padding: 1rem; max-height: 100%; overflow: hidden; }
+  .proposal-photo-frame img { max-width: 100%; max-height: 35vh; width: auto; height: auto; object-fit: contain; border: 1px solid #f0e6d2; }
+
+  /* ─── LINE ART SVGS & FILLERS ─── */
+  .line-art { position: absolute; fill: none; z-index: 3; }
+  .heart-deco { position: absolute; fill: #d4a373; opacity: 0.4; z-index: 1; }
+  
+  /* Lilies Decoration */
+  .lily-deco { position: absolute; width: 110px; height: 110px; z-index: 0; opacity: 0.9; filter: drop-shadow(0px 2px 3px rgba(0,0,0,0.05)); }
+  .lily-top-left { top: 1rem; left: 1rem; transform: rotate(-35deg); }
+  .lily-bottom-left { bottom: 1rem; left: 1rem; transform: rotate(-135deg) scale(0.8); }
+  .lily-top-right { top: 1rem; right: 1rem; transform: rotate(35deg) scale(0.9); }
+  .lily-bottom-right { bottom: 1rem; right: 1rem; transform: rotate(145deg); }
+  .lily-mid-right { top: 45%; right: 1rem; transform: rotate(85deg) scale(0.7); opacity: 0.7; }
+  .lily-bottom-center { bottom: 0.5rem; left: 35%; transform: rotate(-170deg) scale(0.85); opacity: 0.6; }
+  .lily-top-center { top: -1rem; left: 40%; transform: rotate(-15deg) scale(0.6); opacity: 0.5; }
+
+  /* Position Adjustments & Color for Line Arts */
+  .kissing-art { opacity: 0.85; }
+  .bg-sketch-1 { width: 220px; top: 8%; right: 5%; transform: rotate(-10deg); left: auto; }
+  .bg-sketch-2 { width: 180px; bottom: 8%; left: 5%; transform: rotate(15deg); right: auto; }
+  .bg-sketch-3 { width: 200px; bottom: 12%; left: 5%; transform: rotate(5deg); right: auto; top: auto; }
+  .bg-sketch-4 { width: 160px; top: 40%; right: 5%; transform: rotate(-20deg); left: auto; bottom: auto; }
+
+  .umbrella-art { width: 130px; top: 3%; right: 5%; left: auto; opacity: 0.9; }
+  .coffee-art { width: 110px; top: 3%; right: 5%; bottom: auto; opacity: 0.9; }
+  .pizza-art { width: 130px; top: 5%; right: 5%; bottom: auto; opacity: 0.9; }
+  .slide-art { width: 140px; bottom: 35%; left: 3%; top: auto; opacity: 0.9; }
+  .glasses-art { width: 130px; bottom: 10%; left: 5%; right: auto; opacity: 0.9; }
+  .burger-art { width: 140px; top: 5%; right: 8%; opacity: 0.9; }
+
+  /* ─── WALL OF DRAWINGS (26th April) ─── */
+  .all-drawings-bg { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; opacity: 0.55; }
+  .mini-art { position: absolute; transform: scale(0.4); opacity: 0.7; }
+  .mini-flower { position: absolute; opacity: 0.6; width: 45px; }
+
+</style>
+</head>
+<body>
+  <div id="rotate-prompt">
+  <svg viewBox="0 0 24 24" fill="none" stroke="#dfc28d" stroke-width="1.5">
+    <rect x="4" y="2" width="16" height="20" rx="2"/>
+    <path d="M12 18h.01"/>
+    <path d="M2 12h4M6 8l-4 4 4 4" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <p>Rotate your phone to landscape<br>for the best experience ✨</p>
+</div>
+
+<!-- ENCRYPTION LOCK SCREEN & ERROR OVERLAY -->
+<div id="lock-screen">
+  <div class="lock-content">
+    <svg viewBox="0 0 32 29.6" style="width: 50px; fill: #dfc28d; margin-bottom: 15px; animation: pulse 2s infinite alternate;">
+      <path d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2 c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"/>
+    </svg>
+    <h2>A Special Book</h2>
+    <p>Only the magic words can open this...</p>
+    <input type="text" id="secret-key" placeholder="Type the phrase and hit Enter..." autocomplete="off">
+  </div>
+  
+  <div id="error-screen">
+    <h1>Access Denied</h1>
+    <p>ITS NOT FOR CRAZY BITCH TO ACCESS LEARN SOME MANNERS, also go get a life.</p>
+    <button class="reload-btn" onclick="location.reload()">Reload</button>
+  </div>
+</div>
+
+<canvas id="ambient-canvas"></canvas>
+
+<div id="global-controls">
+  <div class="global-arrow" onclick="goPrev()">&#10094;</div>
+  <div class="global-arrow" onclick="goNext()">&#10095;</div>
+</div>
+
+<div class="scene">
+  <div class="book" id="book">
+    
+    <div class="paper" id="p1">
+      <div class="front cover-front">
+        <svg viewBox="0 0 32 29.6" class="heart-deco" style="width: 25px; top: 20%; left: 20%; transform: rotate(-15deg); fill: #e6cc98;"><path d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2 c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"/></svg>
+        <svg viewBox="0 0 32 29.6" class="heart-deco" style="width: 15px; bottom: 25%; right: 25%; transform: rotate(25deg); fill: #e6cc98;"><path d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2 c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"/></svg>
+        <svg viewBox="0 0 32 29.6" class="heart-deco" style="width: 12px; top: 10%; right: 40%; transform: rotate(5deg); fill: #e6cc98; opacity: 0.3;"><path d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2 c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"/></svg>
+        <svg viewBox="0 0 32 29.6" class="heart-deco" style="width: 18px; bottom: 15%; left: 30%; transform: rotate(-35deg); fill: #e6cc98; opacity: 0.5;"><path d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2 c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"/></svg>
+        
+        <div class="page-content">
+          <h1>For Tvisha</h1>
+          <p class="subtitle">Happy 1 Month</p>
+          <p style="font-family: 'Lora', serif; font-style: italic; color: #a38c62; margin-top: 3rem; font-size: 0.9rem;">Use arrows to open</p>
+        </div>
+      </div>
+      <div class="back inside-cover"></div>
+    </div>
+
+    <div class="paper" id="p2">
+      <div class="front">
+        <svg viewBox="0 0 32 29.6" class="heart-deco" style="width: 20px; top: 12%; right: 15%; transform: rotate(10deg);"><path d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2 c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"/></svg>
+        <svg viewBox="0 0 32 29.6" class="heart-deco" style="width: 14px; bottom: 18%; left: 20%; transform: rotate(-15deg);"><path d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2 c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"/></svg>
+        
+        <div class="page-content">
+          <h2>Chapters</h2>
+          <p class="date-label">Our story so far...</p>
+          <ul class="index-list">
+            <li onclick="goToSpread(3)"><span>April 4th</span> <span>Pg. 1</span></li>
+            <li onclick="goToSpread(4)"><span>April 5th</span> <span>Pg. 2</span></li>
+            <li onclick="goToSpread(5)"><span>April 7th</span> <span>Pg. 3</span></li>
+            <li onclick="goToSpread(6)"><span>April 20th</span> <span>Pg. 4</span></li>
+            <li onclick="goToSpread(7)"><span>April 23rd</span> <span>Pg. 5</span></li>
+            <li onclick="goToSpread(8)"><span>April 26th</span> <span>Pg. 6</span></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="back">
+        <svg viewBox="0 0 100 100" class="lily-deco lily-top-left">
+          <path d="M50 50 Q40 80 50 100" stroke="#84a59d" stroke-width="3" fill="none"/><path d="M50 70 Q30 60 20 70 Q35 80 50 70" fill="#a5c4b8" /><path d="M50 80 Q70 75 80 90 Q65 95 50 80" fill="#a5c4b8" /><path d="M50 50 Q20 30 30 10 Q45 25 50 50" fill="#f28482" opacity="0.9"/><path d="M50 50 Q80 30 70 10 Q55 25 50 50" fill="#f28482" opacity="0.9"/><path d="M50 50 Q10 50 10 30 Q30 40 50 50" fill="#f5b5b4" opacity="0.8"/><path d="M50 50 Q90 50 90 30 Q70 40 50 50" fill="#f5b5b4" opacity="0.8"/><path d="M50 50 Q40 10 50 0 Q60 10 50 50" fill="#f7d0cb" opacity="0.9"/><line x1="50" y1="50" x2="45" y2="25" stroke="#f6bd60" stroke-width="2"/><circle cx="45" cy="25" r="2.5" fill="#f6bd60"/><line x1="50" y1="50" x2="55" y2="25" stroke="#f6bd60" stroke-width="2"/><circle cx="55" cy="25" r="2.5" fill="#f6bd60"/>
+        </svg>
+        <svg viewBox="0 0 100 100" class="lily-deco lily-bottom-left">
+          <path d="M50 50 Q40 80 50 100" stroke="#84a59d" stroke-width="3" fill="none"/><path d="M50 70 Q30 60 20 70 Q35 80 50 70" fill="#a5c4b8" /><path d="M50 50 Q20 30 30 10 Q45 25 50 50" fill="#f28482" opacity="0.9"/><path d="M50 50 Q80 30 70 10 Q55 25 50 50" fill="#f28482" opacity="0.9"/><path d="M50 50 Q40 10 50 0 Q60 10 50 50" fill="#f7d0cb" opacity="0.9"/><line x1="50" y1="50" x2="48" y2="25" stroke="#f6bd60" stroke-width="2"/><circle cx="48" cy="25" r="2.5" fill="#f6bd60"/>
+        </svg>
+
+        <div class="page-content" style="justify-content: center;">
+          <svg viewBox="0 0 32 29.6" class="heart-deco" style="width: 22px; top: 15%; right: 25%; transform: rotate(35deg);"><path d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2 c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"/></svg>
+
+          <div class="polaroid-frame">
+            <img src="IMG_1663.JPG" alt="April 4th Photo">
+            <p class="polaroid-caption">The first time I bought flowers to the only girl I want to buy them for. 🤞</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="paper" id="p3">
+      <div class="front">
+        <svg viewBox="0 0 32 29.6" class="heart-deco" style="width: 18px; top: 30%; right: 10%; transform: rotate(-20deg);"><path d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2 c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"/></svg>
+        <svg viewBox="0 0 32 29.6" class="heart-deco" style="width: 25px; bottom: 10%; left: 15%; transform: rotate(15deg);"><path d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2 c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"/></svg>
+        
+        <svg viewBox="0 0 100 100" class="lily-deco lily-top-right">
+          <path d="M50 50 Q40 80 50 100" stroke="#84a59d" stroke-width="3" fill="none"/><path d="M50 70 Q30 60 20 70 Q35 80 50 70" fill="#a5c4b8" /><path d="M50 50 Q20 30 30 10 Q45 25 50 50" fill="#f28482" opacity="0.9"/><path d="M50 50 Q80 30 70 10 Q55 25 50 50" fill="#f28482" opacity="0.9"/><path d="M50 50 Q40 10 50 0 Q60 10 50 50" fill="#f7d0cb" opacity="0.9"/><line x1="50" y1="50" x2="52" y2="25" stroke="#f6bd60" stroke-width="2"/><circle cx="52" cy="25" r="2.5" fill="#f6bd60"/>
+        </svg>
+        <svg viewBox="0 0 100 100" class="lily-deco lily-bottom-right">
+          <path d="M50 50 Q40 80 50 100" stroke="#84a59d" stroke-width="3" fill="none"/><path d="M50 70 Q30 60 20 70 Q35 80 50 70" fill="#a5c4b8" /><path d="M50 80 Q70 75 80 90 Q65 95 50 80" fill="#a5c4b8" /><path d="M50 50 Q20 30 30 10 Q45 25 50 50" fill="#f28482" opacity="0.9"/><path d="M50 50 Q80 30 70 10 Q55 25 50 50" fill="#f28482" opacity="0.9"/><path d="M50 50 Q10 50 10 30 Q30 40 50 50" fill="#f5b5b4" opacity="0.8"/><path d="M50 50 Q90 50 90 30 Q70 40 50 50" fill="#f5b5b4" opacity="0.8"/><path d="M50 50 Q40 10 50 0 Q60 10 50 50" fill="#f7d0cb" opacity="0.9"/><line x1="50" y1="50" x2="45" y2="25" stroke="#f6bd60" stroke-width="2"/><circle cx="45" cy="25" r="2.5" fill="#f6bd60"/><line x1="50" y1="50" x2="55" y2="25" stroke="#f6bd60" stroke-width="2"/><circle cx="55" cy="25" r="2.5" fill="#f6bd60"/>
+        </svg>
+        <svg viewBox="0 0 100 100" class="lily-deco lily-mid-right">
+          <path d="M50 50 Q40 80 50 100" stroke="#84a59d" stroke-width="3" fill="none"/><path d="M50 70 Q30 60 20 70 Q35 80 50 70" fill="#a5c4b8" /><path d="M50 50 Q20 30 30 10 Q45 25 50 50" fill="#f28482" opacity="0.9"/><path d="M50 50 Q80 30 70 10 Q55 25 50 50" fill="#f28482" opacity="0.9"/><path d="M50 50 Q40 10 50 0 Q60 10 50 50" fill="#f7d0cb" opacity="0.9"/><line x1="50" y1="50" x2="48" y2="25" stroke="#f6bd60" stroke-width="2"/><circle cx="48" cy="25" r="2.5" fill="#f6bd60"/>
+        </svg>
+        <svg viewBox="0 0 100 100" class="lily-deco lily-bottom-center">
+          <path d="M50 50 Q40 80 50 100" stroke="#84a59d" stroke-width="3" fill="none"/><path d="M50 70 Q30 60 20 70 Q35 80 50 70" fill="#a5c4b8" /><path d="M50 50 Q20 30 30 10 Q45 25 50 50" fill="#f28482" opacity="0.9"/><path d="M50 50 Q80 30 70 10 Q55 25 50 50" fill="#f28482" opacity="0.9"/><path d="M50 50 Q40 10 50 0 Q60 10 50 50" fill="#f7d0cb" opacity="0.9"/><line x1="50" y1="50" x2="52" y2="25" stroke="#f6bd60" stroke-width="2"/><circle cx="52" cy="25" r="2.5" fill="#f6bd60"/>
+        </svg>
+        <svg viewBox="0 0 100 100" class="lily-deco lily-top-center">
+          <path d="M50 50 Q40 80 50 100" stroke="#84a59d" stroke-width="3" fill="none"/><path d="M50 70 Q30 60 20 70 Q35 80 50 70" fill="#a5c4b8" /><path d="M50 50 Q20 30 30 10 Q45 25 50 50" fill="#f28482" opacity="0.9"/><path d="M50 50 Q80 30 70 10 Q55 25 50 50" fill="#f28482" opacity="0.9"/><path d="M50 50 Q40 10 50 0 Q60 10 50 50" fill="#f7d0cb" opacity="0.9"/><line x1="50" y1="50" x2="48" y2="25" stroke="#f6bd60" stroke-width="2"/><circle cx="48" cy="25" r="2.5" fill="#f6bd60"/>
+        </svg>
+
+        <div class="page-content">
+          <h2 style="position: relative; z-index: 5;">April 4th</h2>
+          <p class="date-label" style="position: relative; z-index: 5;">Chapter One · First Date</p>
+          <div class="ruled-lines">
+            <p class="journal-text">
+              I still can't believe how hard I fell for you on our very first date. You looked so fucking gorgeous. And the fact that you showed up after everything that happened that day completely blew me away.
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="back">
+        <svg viewBox="0 0 100 100" class="line-art kissing-art bg-sketch-1">
+           <g stroke="#e07a5f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+             <path d="M 25 85 C 30 70 40 65 43 55 C 44 51 48 48 50 50 C 52 52 50 54 48 55 C 45 56 45 58 48 60 C 50 62 45 70 40 85" />
+             <path d="M 75 85 C 70 70 60 65 57 55 C 56 51 52 48 50 50 C 48 52 50 54 52 55 C 55 56 55 58 52 60 C 50 62 55 70 60 85" />
+             <path d="M 45 30 C 45 25 50 25 50 30 C 50 25 55 25 55 30 C 55 35 50 40 50 40 C 50 40 45 35 45 30 Z" fill="rgba(224, 122, 95, 0.2)" stroke-width="1"/>
+           </g>
+        </svg>
+        <svg viewBox="0 0 100 100" class="line-art kissing-art bg-sketch-2">
+           <g stroke="#e07a5f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+             <path d="M 25 85 C 30 70 40 65 43 55 C 44 51 48 48 50 50 C 52 52 50 54 48 55 C 45 56 45 58 48 60 C 50 62 45 70 40 85" />
+             <path d="M 75 85 C 70 70 60 65 57 55 C 56 51 52 48 50 50 C 48 52 50 54 52 55 C 55 56 55 58 52 60 C 50 62 55 70 60 85" />
+             <path d="M 45 30 C 45 25 50 25 50 30 C 50 25 55 25 55 30 C 55 35 50 40 50 40 C 50 40 45 35 45 30 Z" fill="rgba(224, 122, 95, 0.2)" stroke-width="1"/>
+           </g>
+        </svg>
+
+        <div class="page-content" style="justify-content: center; align-items: center;">
+          <div class="photo-booth" style="width: 240px; transform: rotate(-3deg);">
+            <img src="1b41076e-d8fe-4c1a-9c98-559ae01161dc.jpg" alt="April 5th Left Photo" style="max-height: 65vh; filter: grayscale(100%);">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="paper" id="p4">
+      <div class="front">
+        <svg viewBox="0 0 32 29.6" class="heart-deco" style="width: 20px; top: 15%; right: 10%; transform: rotate(15deg);"><path d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2 c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"/></svg>
+        <svg viewBox="0 0 32 29.6" class="heart-deco" style="width: 16px; bottom: 25%; left: 15%; transform: rotate(-45deg);"><path d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2 c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"/></svg>
+        
+        <svg viewBox="0 0 100 100" class="line-art kissing-art bg-sketch-3">
+           <g stroke="#e07a5f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+             <path d="M 25 85 C 30 70 40 65 43 55 C 44 51 48 48 50 50 C 52 52 50 54 48 55 C 45 56 45 58 48 60 C 50 62 45 70 40 85" />
+             <path d="M 75 85 C 70 70 60 65 57 55 C 56 51 52 48 50 50 C 48 52 50 54 52 55 C 55 56 55 58 52 60 C 50 62 55 70 60 85" />
+             <path d="M 45 30 C 45 25 50 25 50 30 C 50 25 55 25 55 30 C 55 35 50 40 50 40 C 50 40 45 35 45 30 Z" fill="rgba(224, 122, 95, 0.2)" stroke-width="1"/>
+           </g>
+        </svg>
+        <svg viewBox="0 0 100 100" class="line-art kissing-art bg-sketch-4">
+           <g stroke="#e07a5f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+             <path d="M 25 85 C 30 70 40 65 43 55 C 44 51 48 48 50 50 C 52 52 50 54 48 55 C 45 56 45 58 48 60 C 50 62 45 70 40 85" />
+             <path d="M 75 85 C 70 70 60 65 57 55 C 56 51 52 48 50 50 C 48 52 50 54 52 55 C 55 56 55 58 52 60 C 50 62 55 70 60 85" />
+             <path d="M 45 30 C 45 25 50 25 50 30 C 50 25 55 25 55 30 C 55 35 50 40 50 40 C 50 40 45 35 45 30 Z" fill="rgba(224, 122, 95, 0.2)" stroke-width="1"/>
+           </g>
+        </svg>
+
+        <div class="page-content" style="display: flex; flex-direction: column;">
+          <h2 style="position: relative; z-index: 5;">April 5th</h2>
+          <p class="date-label" style="position: relative; z-index: 5;">Chapter Two · First Kiss & Starry Skies</p>
+
+          <div class="ruled-lines" style="width: 100%; min-height: 70px; margin-bottom: 1rem; flex-shrink: 0; padding: 0 10px;">
+            <p class="journal-text" style="font-size: 1.15rem; margin-top: 0; padding-top: 5px;">
+              "Tvisha love Mourya more.. Is Joke.. Tvisha loves Mouryas ASS more. Fist my bum."
+            </p>
+          </div>
+          
+          <div style="display: flex; justify-content: center; align-items: center; flex-grow: 1;">
+            <div class="photo-booth" style="width: 220px; transform: rotate(4deg);">
+              <img src="b0560942-5128-4805-ab27-ff427b50b680.jpg" alt="April 5th Right Photo" style="max-height: 48vh; filter: grayscale(100%);">
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="back">
+        <svg viewBox="0 0 100 100" class="line-art umbrella-art">
+          <path d="M10 50 Q50 10 90 50 Z" fill="rgba(132, 165, 157, 0.15)" stroke="#84a59d" stroke-width="2"/>
+          <path d="M10 50 Q30 40 50 50 Q70 40 90 50" stroke="#84a59d" stroke-width="2" fill="none"/>
+          <line x1="50" y1="50" x2="50" y2="85" stroke="#84a59d" stroke-width="2"/>
+          <path d="M50 85 Q50 95 40 95" stroke="#84a59d" stroke-width="2" fill="none"/>
+          <line x1="20" y1="20" x2="15" y2="30" stroke="#84a59d" stroke-width="1"/>
+          <line x1="80" y1="15" x2="75" y2="25" stroke="#84a59d" stroke-width="1"/>
+          <line x1="50" y1="5" x2="50" y2="10" stroke="#84a59d" stroke-width="1"/>
+        </svg>
+
+        <div class="page-content" style="display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem; gap: 1.5rem;">
+          <div class="polaroid-frame" style="transform: rotate(-3deg); width: 85%; padding: 10px 10px 15px 10px; margin: 0;">
+            <img src="IMG_1689.JPG" alt="April 7th Image 1" style="height: 28vh; width: 100%; max-height: none; object-fit: cover;">
+          </div>
+          <div class="polaroid-frame" style="transform: rotate(4deg); width: 85%; padding: 10px 10px 15px 10px; margin: 0;">
+            <img src="IMG_1700.JPG" alt="April 7th Image 2" style="height: 28vh; width: 100%; max-height: none; object-fit: cover;">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="paper" id="p5">
+      <div class="front">
+        <svg viewBox="0 0 32 29.6" class="heart-deco" style="width: 25px; bottom: 15%; right: 15%; transform: rotate(-10deg);"><path d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2 c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"/></svg>
+        <svg viewBox="0 0 32 29.6" class="heart-deco" style="width: 18px; top: 12%; right: 25%; transform: rotate(18deg);"><path d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2 c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"/></svg>
+        
+        <svg viewBox="0 0 100 100" class="line-art coffee-art">
+           <path d="M20 50 L20 80 Q20 100 40 100 Q60 100 60 80 L60 50 Z" stroke="#d4a373" stroke-width="2" fill="rgba(212, 163, 115, 0.15)"/>
+           <path d="M20 50 Q40 60 60 50 Q40 40 20 50 Z" stroke="#d4a373" stroke-width="2" fill="none"/>
+           <path d="M60 60 Q80 60 80 75 Q80 90 60 85" stroke="#d4a373" stroke-width="2" fill="none"/>
+           <path d="M30 35 Q25 25 35 15" stroke="#d4a373" stroke-width="1.5" fill="none"/>
+           <path d="M50 35 Q45 25 55 15" stroke="#d4a373" stroke-width="1.5" fill="none"/>
+           <path d="M55 40 L55 65 Q55 85 75 85 Q95 85 95 65 L95 40 Z" stroke="#d4a373" stroke-width="1.5" fill="none" opacity="0.5"/>
+           <path d="M55 40 Q75 50 95 40 Q75 30 55 40 Z" stroke="#d4a373" stroke-width="1.5" fill="none" opacity="0.5"/>
+        </svg>
+
+        <svg viewBox="0 0 100 100" class="line-art slide-art">
+          <line x1="20" y1="90" x2="40" y2="30" stroke="#e63946" stroke-width="2"/>
+          <line x1="30" y1="90" x2="50" y2="30" stroke="#e63946" stroke-width="2"/>
+          <line x1="23" y1="80" x2="33" y2="80" stroke="#e63946" stroke-width="2"/>
+          <line x1="26" y1="70" x2="36" y2="70" stroke="#e63946" stroke-width="2"/>
+          <line x1="29" y1="60" x2="39" y2="60" stroke="#e63946" stroke-width="2"/>
+          <line x1="33" y1="50" x2="43" y2="50" stroke="#e63946" stroke-width="2"/>
+          <line x1="36" y1="40" x2="46" y2="40" stroke="#e63946" stroke-width="2"/>
+          <path d="M40 30 Q50 30 60 50 T80 80 Q85 85 90 85" fill="none" stroke="#e63946" stroke-width="3" stroke-linecap="round"/>
+          <path d="M48 28 Q58 28 68 48 T88 78 Q93 83 98 83" fill="none" stroke="#e63946" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+        </svg>
+
+        <div class="page-content" style="display: flex; flex-direction: column;">
+          <h2 style="position: relative; z-index: 5;">April 7th</h2>
+          <p class="date-label" style="position: relative; z-index: 5;">Chapter Three · Three Times Lucky</p>
+          
+          <div class="ruled-lines" style="width: 100%; min-height: 70px; margin-bottom: 1rem; flex-shrink: 0; padding: 0 10px;">
+             <p class="journal-text" style="font-size: 1.15rem; margin-top: 0; padding-top: 5px;">
+               The impulsive ones are the best. One of my favorite dates so far.
+             </p>
+          </div>
+
+          <div style="display: flex; justify-content: center; align-items: center; flex-grow: 1;">
+            <div class="polaroid-frame" style="transform: rotate(-2deg); padding: 10px 10px 15px 10px; max-width: 90%;">
+              <img src="IMG_1696.jpg" alt="April 7th Image 3" style="max-height: 35vh;">
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- APRIL 20TH LEFT PAGE (FULL PICTURE) -->
+      <div class="back">
+        <div class="page-content" style="padding: 1.5rem; justify-content: center; align-items: center;">
+          <div style="background: #ffffff; padding: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 100%; height: 95%; display: flex; justify-content: center; align-items: center; transform: rotate(-1deg); position: relative; z-index: 2;">
+            <img src="IMG_1987.JPG" alt="April 20th Left Photo" style="max-width: 100%; max-height: 100%; width: 100%; height: 100%; object-fit: contain; border: 1px solid #e0e0e0;">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- APRIL 20TH RIGHT PAGE (TEXT + PORTRAIT) -->
+    <div class="paper" id="p6">
+      <div class="front">
+        <svg viewBox="0 0 32 29.6" class="heart-deco" style="width: 18px; top: 15%; right: 20%; transform: rotate(18deg);"><path d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2 c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"/></svg>
+        <svg viewBox="0 0 32 29.6" class="heart-deco" style="width: 28px; bottom: 10%; right: 10%; transform: rotate(-25deg); opacity: 0.3;"><path d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2 c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"/></svg>
+
+        <svg viewBox="0 0 100 100" class="line-art pizza-art">
+           <path d="M50 10 L80 80 Q50 90 20 80 Z" stroke="#f6bd60" stroke-width="2" fill="rgba(246, 189, 96, 0.2)" stroke-linejoin="round"/>
+           <path d="M25 70 Q50 80 75 70" stroke="#f6bd60" stroke-width="2" fill="none"/> 
+           <circle cx="45" cy="40" r="4" stroke="#e76f51" stroke-width="1.5" fill="none"/>
+           <circle cx="55" cy="60" r="3" stroke="#e76f51" stroke-width="1.5" fill="none"/>
+           <circle cx="40" cy="55" r="5" stroke="#e76f51" stroke-width="1.5" fill="none"/>
+           <circle cx="60" cy="45" r="4" stroke="#e76f51" stroke-width="1.5" fill="none"/>
+        </svg>
+
+        <div class="page-content" style="display: flex; flex-direction: column;">
+          <h2 style="position: relative; z-index: 5;">April 20th</h2>
+          <p class="date-label" style="position: relative; z-index: 5;">Chapter Four · Pizza & Stars</p>
+          
+          <div class="ruled-lines" style="width: 100%; min-height: 96px; margin-bottom: 1rem; flex-shrink: 0; padding: 0 10px;">
+             <p class="journal-text" style="font-size: 1.15rem; margin-top: 0; padding-top: 5px;">
+               The CC TV camera has all of our moments 😉. I still am trying to figure out the kiss me look.
+             </p>
+          </div>
+
+          <div style="display: flex; justify-content: center; align-items: center; flex-grow: 1;">
+            <div class="polaroid-frame" style="transform: rotate(3deg); padding: 10px 10px 15px 10px; max-width: 80%; width: 220px;">
+              <img src="IMG_2001.JPG" alt="April 20th Portrait" style="width: 100%; height: auto; max-height: 35vh; aspect-ratio: 3/4; object-fit: cover;">
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- APRIL 23RD LEFT PAGE (FULL LANDSCAPE PICTURE) -->
+      <div class="back">
+        <div class="page-content" style="padding: 1.5rem; justify-content: center; align-items: center;">
+          <div style="background: #ffffff; padding: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 100%; display: flex; justify-content: center; align-items: center; transform: rotate(1deg); position: relative; z-index: 2;">
+            <img src="IMG_2345.JPG" alt="April 23rd Left Photo" style="width: 100%; height: auto; aspect-ratio: 4/3; object-fit: cover; border: 1px solid #e0e0e0;">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- APRIL 23RD RIGHT PAGE (TEXT + LANDSCAPE SLOT + BURGER/FRIES) -->
+    <div class="paper" id="p7">
+      <div class="front">
+        <svg viewBox="0 0 32 29.6" class="heart-deco" style="width: 22px; bottom: 20%; left: 15%; transform: rotate(-25deg);"><path d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2 c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"/></svg>
+        <svg viewBox="0 0 32 29.6" class="heart-deco" style="width: 15px; top: 25%; right: 10%; transform: rotate(35deg);"><path d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2 c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"/></svg>
+
+        <svg viewBox="0 0 100 100" class="line-art glasses-art">
+          <path d="M20 30 L30 80 Q35 90 45 80 L55 30 Z" stroke="#3d5a80" stroke-width="1.5" fill="rgba(61, 90, 128, 0.15)"/>
+          <path d="M20 30 Q37.5 40 55 30 Q37.5 20 20 30 Z" stroke="#3d5a80" stroke-width="1.5" fill="none"/>
+          <rect x="30" y="60" width="8" height="8" transform="rotate(15 34 64)" stroke="#3d5a80" stroke-width="1" fill="none"/>
+          <rect x="38" y="55" width="7" height="7" transform="rotate(-20 41 58)" stroke="#3d5a80" stroke-width="1" fill="none"/>
+          <path d="M45 40 L55 90 Q60 100 70 90 L80 40 Z" stroke="#3d5a80" stroke-width="1.5" fill="rgba(61, 90, 128, 0.15)" opacity="0.8"/>
+          <path d="M45 40 Q62.5 50 80 40 Q62.5 30 45 40 Z" stroke="#3d5a80" stroke-width="1.5" fill="none" opacity="0.8"/>
+          <rect x="58" y="75" width="8" height="8" transform="rotate(45 62 79)" stroke="#3d5a80" stroke-width="1" fill="none" opacity="0.8"/>
+          <line x1="45" y1="50" x2="40" y2="45" stroke="#3d5a80" stroke-width="1.5"/>
+          <line x1="50" y1="55" x2="45" y2="50" stroke="#3d5a80" stroke-width="1.5"/>
+        </svg>
+
+        <svg viewBox="0 0 100 100" class="line-art burger-art">
+          <g stroke-linecap="round" stroke-linejoin="round">
+            <path d="M 15 50 Q 40 15 65 50 Z" stroke="#e07a5f" stroke-width="2" fill="rgba(224, 122, 95, 0.2)"/>
+            <line x1="30" y1="35" x2="33" y2="38" stroke="#e07a5f" stroke-width="1.5"/>
+            <line x1="40" y1="28" x2="43" y2="30" stroke="#e07a5f" stroke-width="1.5"/>
+            <line x1="50" y1="32" x2="47" y2="35" stroke="#e07a5f" stroke-width="1.5"/>
+            <path d="M 10 53 Q 20 48 25 55 T 40 55 T 55 55 T 70 53" stroke="#81b29a" stroke-width="2" fill="none"/>
+            <rect x="15" y="58" width="50" height="8" rx="3" stroke="#5e503f" stroke-width="2" fill="rgba(94, 80, 63, 0.2)"/>
+            <path d="M 17 58 L 25 65 L 30 58" stroke="#f2cc8f" stroke-width="2" fill="none"/>
+            <path d="M 45 58 L 50 64 L 55 58" stroke="#f2cc8f" stroke-width="2" fill="none"/>
+            <path d="M 15 68 Q 40 78 65 68 Z" stroke="#e07a5f" stroke-width="2" fill="rgba(224, 122, 95, 0.2)"/>
+            <path d="M 70 45 L 70 70 L 90 70 L 90 45 L 80 55 Z" stroke="#e63946" stroke-width="1.5" fill="rgba(230, 57, 70, 0.1)"/>
+            <line x1="75" y1="45" x2="73" y2="25" stroke="#f2cc8f" stroke-width="2"/>
+            <line x1="80" y1="50" x2="80" y2="20" stroke="#f2cc8f" stroke-width="2"/>
+            <line x1="85" y1="45" x2="88" y2="28" stroke="#f2cc8f" stroke-width="2"/>
+          </g>
+        </svg>
+
+        <div class="page-content" style="display: flex; flex-direction: column;">
+          <h2 style="position: relative; z-index: 5;">April 23rd</h2>
+          <p class="date-label" style="position: relative; z-index: 5;">Chapter Five · Ice & Everything Nice</p>
+          
+          <div class="ruled-lines" style="width: 100%; min-height: 96px; margin-bottom: 1rem; flex-shrink: 0; padding: 0 10px;">
+             <p class="journal-text" style="font-size: 1.15rem; margin-top: 0; padding-top: 5px; line-height: 1.6;">
+               I LOVE TO EAT ICE CUBES NOW BUT MISS YOU EVERYTIME I EAT ONE. :(
+             </p>
+          </div>
+
+          <div style="display: flex; justify-content: center; align-items: center; flex-grow: 1;">
+            <div class="polaroid-frame" style="transform: rotate(-1deg); padding: 10px 10px 15px 10px; width: 95%;">
+              <img src="IMG_2347.JPG" alt="April 23rd Right Photo" style="width: 100%; height: auto; max-height: 35vh; aspect-ratio: 4/3; object-fit: cover;">
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="back">
+        <svg viewBox="0 0 32 29.6" class="heart-deco" style="width: 25px; top: 15%; left: 20%; transform: rotate(-12deg);"><path d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2 c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"/></svg>
+        <div class="page-content" style="padding: 2rem;">
+          <div class="proposal-photo-frame">
+            <div style="flex-grow: 1; width: 100%; display: flex; align-items: center; justify-content: center; background: #fdfaf5;">
+              <img src="08D381FB-A009-49AF-B3F0-8673FE2ECF35.JPG" alt="Proposal Image">
+            </div>
+            <p style="margin-top: 15px; font-size: 1.1rem; color: #a13d4b;">MY FAVORITE PICTURE</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- APRIL 26TH: WALL OF DRAWINGS + INTERACTIVE BUTTONS -->
+    <div class="paper" id="p8">
+      <div class="front">
+        <div class="page-content" style="padding: 0;">
+          <div class="proposal-special">
+            
+            <div class="all-drawings-bg">
+              <!-- Reused Drawings -->
+              <svg viewBox="0 0 100 100" class="mini-art" style="top: 2%; left: 5%;"><path d="M10 50 Q50 10 90 50 Z" fill="rgba(132, 165, 157, 0.15)" stroke="#84a59d" stroke-width="2"/><path d="M10 50 Q30 40 50 50 Q70 40 90 50" stroke="#84a59d" stroke-width="2" fill="none"/><line x1="50" y1="50" x2="50" y2="85" stroke="#84a59d" stroke-width="2"/><path d="M50 85 Q50 95 40 95" stroke="#84a59d" stroke-width="2" fill="none"/></svg>
+              <svg viewBox="0 0 100 100" class="mini-art" style="top: -5%; right: 5%; transform: scale(0.4) rotate(45deg);"><path d="M50 10 L80 80 Q50 90 20 80 Z" stroke="#f6bd60" stroke-width="2" fill="rgba(246, 189, 96, 0.2)"/><path d="M25 70 Q50 80 75 70" stroke="#f6bd60" stroke-width="2" fill="none"/><circle cx="45" cy="40" r="4" stroke="#e76f51" stroke-width="1.5" fill="none"/><circle cx="55" cy="60" r="3" stroke="#e76f51" stroke-width="1.5" fill="none"/><circle cx="40" cy="55" r="5" stroke="#e76f51" stroke-width="1.5" fill="none"/></svg>
+              <svg viewBox="0 0 100 100" class="mini-art" style="top: 30%; left: -8%; transform: scale(0.4) rotate(-20deg);"><path d="M20 50 L20 80 Q20 100 40 100 Q60 100 60 80 L60 50 Z" stroke="#d4a373" stroke-width="2" fill="rgba(212, 163, 115, 0.15)"/><path d="M60 60 Q80 60 80 75 Q80 90 60 85" stroke="#d4a373" stroke-width="2" fill="none"/><path d="M30 35 Q25 25 35 15" stroke="#d4a373" stroke-width="1.5" fill="none"/><path d="M50 35 Q45 25 55 15" stroke="#d4a373" stroke-width="1.5" fill="none"/></svg>
+              <svg viewBox="0 0 100 100" class="mini-art" style="top: 40%; right: -5%; transform: scale(0.4) rotate(15deg);"><path d="M20 30 L30 80 Q35 90 45 80 L55 30 Z" stroke="#3d5a80" stroke-width="1.5" fill="rgba(61, 90, 128, 0.15)"/><path d="M45 40 L55 90 Q60 100 70 90 L80 40 Z" stroke="#3d5a80" stroke-width="1.5" fill="rgba(61, 90, 128, 0.15)"/><line x1="45" y1="50" x2="40" y2="45" stroke="#3d5a80" stroke-width="1.5"/></svg>
+              <svg viewBox="0 0 100 100" class="mini-art" style="bottom: 15%; left: 0%; transform: scale(0.35) rotate(-10deg);"><line x1="20" y1="90" x2="40" y2="30" stroke="#e63946" stroke-width="2"/><line x1="30" y1="90" x2="50" y2="30" stroke="#e63946" stroke-width="2"/><line x1="23" y1="80" x2="33" y2="80" stroke="#e63946" stroke-width="2"/><line x1="26" y1="70" x2="36" y2="70" stroke="#e63946" stroke-width="2"/><line x1="29" y1="60" x2="39" y2="60" stroke="#e63946" stroke-width="2"/><line x1="33" y1="50" x2="43" y2="50" stroke="#e63946" stroke-width="2"/><line x1="36" y1="40" x2="46" y2="40" stroke="#e63946" stroke-width="2"/><path d="M40 30 Q50 30 60 50 T80 80 Q85 85 90 85" fill="none" stroke="#e63946" stroke-width="3" stroke-linecap="round"/></svg>
+              <svg viewBox="0 0 100 100" class="mini-art" style="bottom: 5%; right: 5%; transform: scale(0.45) rotate(-5deg);"><g stroke-linecap="round" stroke-linejoin="round"><path d="M 15 50 Q 40 15 65 50 Z" stroke="#e07a5f" stroke-width="2" fill="rgba(224, 122, 95, 0.2)"/><path d="M 10 53 Q 20 48 25 55 T 40 55 T 55 55 T 70 53" stroke="#81b29a" stroke-width="2" fill="none"/><rect x="15" y="58" width="50" height="8" rx="3" stroke="#5e503f" stroke-width="2" fill="rgba(94, 80, 63, 0.2)"/><path d="M 15 68 Q 40 78 65 68 Z" stroke="#e07a5f" stroke-width="2" fill="rgba(224, 122, 95, 0.2)"/><path d="M 70 45 L 70 70 L 90 70 L 90 45 L 80 55 Z" stroke="#e63946" stroke-width="1.5" fill="rgba(230, 57, 70, 0.1)"/><line x1="75" y1="45" x2="73" y2="25" stroke="#f2cc8f" stroke-width="2"/><line x1="80" y1="50" x2="80" y2="20" stroke="#f2cc8f" stroke-width="2"/><line x1="85" y1="45" x2="88" y2="28" stroke="#f2cc8f" stroke-width="2"/></g></svg>
+              <svg viewBox="0 0 100 100" class="mini-art" style="top: 70%; left: 35%; transform: scale(0.6) rotate(15deg); opacity: 0.3;"><g stroke="#e07a5f" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M 25 85 C 30 70 40 65 43 55 C 44 51 48 48 50 50 C 52 52 50 54 48 55 C 45 56 45 58 48 60 C 50 62 45 70 40 85" /><path d="M 75 85 C 70 70 60 65 57 55 C 56 51 52 48 50 50 C 48 52 50 54 52 55 C 55 56 55 58 52 60 C 50 62 55 70 60 85" /><path d="M 45 30 C 45 25 50 25 50 30 C 50 25 55 25 55 30 C 55 35 50 40 50 40 C 50 40 45 35 45 30 Z" fill="rgba(224, 122, 95, 0.2)" stroke-width="1"/></g></svg>
+
+              <!-- FLOWER DECORATIONS -->
+              <svg viewBox="0 0 100 100" class="mini-flower" style="top: 15%; right: 30%; transform: rotate(-45deg);"><path d="M50 50 Q40 80 50 100" stroke="#84a59d" stroke-width="3" fill="none"/><path d="M50 50 Q20 30 30 10 Q45 25 50 50" fill="#f28482"/><path d="M50 50 Q80 30 70 10 Q55 25 50 50" fill="#f28482"/><path d="M50 50 Q40 10 50 0 Q60 10 50 50" fill="#f7d0cb"/></svg>
+              <svg viewBox="0 0 100 100" class="mini-flower" style="bottom: 25%; left: 15%; transform: rotate(10deg);"><g stroke="#f4a261" stroke-width="6" stroke-linecap="round"><line x1="50" y1="50" x2="50" y2="10"/><line x1="50" y1="50" x2="50" y2="90"/><line x1="50" y1="50" x2="10" y2="50"/><line x1="50" y1="50" x2="90" y2="50"/><line x1="50" y1="50" x2="20" y2="20"/><line x1="50" y1="50" x2="80" y2="80"/><line x1="50" y1="50" x2="20" y2="80"/><line x1="50" y1="50" x2="80" y2="20"/><circle cx="50" cy="50" r="10" fill="#e76f51" stroke="none"/></g></svg>
+              <svg viewBox="0 0 100 100" class="mini-flower" style="top: 50%; right: 15%; transform: rotate(30deg); width: 35px;"><g stroke="#f4a261" stroke-width="6" stroke-linecap="round"><line x1="50" y1="50" x2="50" y2="10"/><line x1="50" y1="50" x2="50" y2="90"/><line x1="50" y1="50" x2="10" y2="50"/><line x1="50" y1="50" x2="90" y2="50"/><line x1="50" y1="50" x2="20" y2="20"/><line x1="50" y1="50" x2="80" y2="80"/><line x1="50" y1="50" x2="20" y2="80"/><line x1="50" y1="50" x2="80" y2="20"/><circle cx="50" cy="50" r="10" fill="#e76f51" stroke="none"/></g></svg>
+              <svg viewBox="0 0 100 100" class="mini-flower" style="top: 25%; left: 20%; transform: rotate(-20deg);"><path d="M 50 30 C 70 10 90 30 70 50 C 90 70 70 90 50 70 C 30 90 10 70 30 50 C 10 30 30 10 50 30 Z" fill="rgba(230, 57, 70, 0.4)" stroke="#e63946" stroke-width="3"/><path d="M 50 40 C 60 20 80 40 60 50 C 80 60 60 80 50 60 C 40 80 20 60 40 50 C 20 40 40 20 50 40 Z" fill="rgba(230, 57, 70, 0.6)"/></svg>
+              <svg viewBox="0 0 100 100" class="mini-flower" style="bottom: 30%; right: 25%; transform: rotate(45deg); width: 40px;"><path d="M 50 30 C 70 10 90 30 70 50 C 90 70 70 90 50 70 C 30 90 10 70 30 50 C 10 30 30 10 50 30 Z" fill="rgba(230, 57, 70, 0.4)" stroke="#e63946" stroke-width="3"/><path d="M 50 40 C 60 20 80 40 60 50 C 80 60 60 80 50 60 C 40 80 20 60 40 50 C 20 40 40 20 50 40 Z" fill="rgba(230, 57, 70, 0.6)"/></svg>
+            </div>
+
+            <svg viewBox="0 0 32 29.6" class="heart-deco" style="width: 30px; top: 8%; right: 12%; transform: rotate(15deg); fill: #dfc28d; opacity: 0.8; z-index: 5;"><path d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2 c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"/></svg>
+            <svg viewBox="0 0 32 29.6" class="heart-deco" style="width: 20px; bottom: 12%; left: 15%; transform: rotate(-20deg); fill: #dfc28d; opacity: 0.8; z-index: 5;"><path d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2 c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"/></svg>
+
+            <h2>April 26th</h2>
+            <p class="date-label">Chapter Six · My KANMANI (potato)</p>
+            
+            <img src="IMG_2462.JPG" alt="Special Photo" style="position: relative; z-index: 5; max-width: 90%; max-height: 35vh; width: auto; height: auto; object-fit: contain; margin: 15px auto; border: 3px solid #dfc28d; border-radius: 5px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+
+            <!-- NEW INTERACTIVE QUESTION -->
+            <p class="quote">Am still hoping that you sure about everything</p>
+            <div id="btn-container" style="display: flex; gap: 15px; justify-content: center; align-items: center; margin-top: 10px; min-height: 50px;">
+              <button id="btn-yes" onclick="handleYes()">Yes</button>
+              <button id="btn-no" onclick="handleNo()">No</button>
+            </div>
+            <p id="final-reveal" style="display: none; font-family: 'Playfair Display', serif; font-size: 1.6rem; color: #a13d4b; margin-top: 15px; font-style: italic; font-weight: 600; position: relative; z-index: 5; text-shadow: 0 0 5px #fdf8f2;">its not like you have a say.</p>
+            
+          </div>
+        </div>
+      </div>
+      <div class="back inside-cover"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // ─── INTERACTIVE YES/NO BUTTON LOGIC ───
+  let noClickCount = 0;
+  function handleNo() {
+    noClickCount++;
+    const btnNo = document.getElementById('btn-no');
+    if (noClickCount >= 7) {
+      btnNo.style.display = 'none';
+    } else {
+      const scale = Math.pow(0.5, noClickCount);
+      btnNo.style.transform = `scale(${scale})`;
+    }
+  }
+
+  function handleYes() {
+    document.getElementById('btn-container').style.display = 'none';
+    document.getElementById('final-reveal').style.display = 'block';
+  }
+
+  // ─── LOCK SCREEN LOGIC ───
+  const secretKeyInput = document.getElementById('secret-key');
+  const lockScreen = document.getElementById('lock-screen');
+  const lockContent = document.querySelector('.lock-content');
+  const errorScreen = document.getElementById('error-screen');
+  
+// ─── HASHED PASSWORD LOCK ───
+async function hashString(str) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(str);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// Pre-computed SHA-256 hashes (generated from the correct phrases)
+const CORRECT_HASHES = new Set([
+  'f2a3c1d4e8b7f9a2c3e1d4f8b2a7c9e3d1f4b8a2c7e9d3f1b4a8c2e7d9f3b1a4', // placeholder
+]);
+
+// We compute real hashes at runtime on first load
+(async () => {
+  const phrases = [
+    'nanu mourya na preetisuttene',
+    'nano mourya na preetisuttene',
+    'naanu mourya na preetisuttene',
+  ];
+  for (const phrase of phrases) {
+    const h = await hashString(phrase);
+    CORRECT_HASHES.add(h);
+  }
+  // Remove placeholder
+  CORRECT_HASHES.delete('f2a3c1d4e8b7f9a2c3e1d4f8b2a7c9e3d1f4b8a2c7e9d3f1b4a8c2e7d9f3b1a4');
+})();
+
+secretKeyInput.addEventListener('keydown', async (e) => {
+  if (e.key === 'Enter') {
+    const val = secretKeyInput.value.toLowerCase().replace(/[^a-z ]/g, '').replace(/\s+/g, ' ').trim();
+
+    // Tvisha decoy — message only, no access
+    if (val === 'tvisha') {
+      lockContent.innerHTML = '<h2 style="color: #dfc28d; font-family: Lora, serif; font-size: 1.6rem; text-transform: none; text-shadow: none;">Nothing here was a booby trap your good.</h2>';
+      return;
+    }
+
+    const inputHash = await hashString(val);
+
+    if (CORRECT_HASHES.has(inputHash)) {
+      lockScreen.classList.add('lock-hidden');
+      setTimeout(() => { lockScreen.style.display = 'none'; }, 1500);
+    } else {
+      lockContent.style.display = 'none';
+      errorScreen.style.display = 'flex';
+    }
+  }
+});
+
+  // ─── AMBIENT CANVAS EFFECT (THEME SWITCHER) ───
+  const canvas = document.getElementById('ambient-canvas');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+  let currentTheme = 'none'; 
+
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  for (let i = 0; i < 1000; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      radius: Math.random() * 2.5 + 0.5, 
+      opacity: Math.random() * 0.6 + 0.2,
+      speedX: Math.random() * 2 - 1, 
+      speedY: (Math.random() * 1.5 + 0.5) * 10, 
+      sway: Math.random() * 100 
+    });
+  }
+
+  let angle = 0;
+  function drawParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    angle += 0.01;
+
+    if (currentTheme !== 'none') {
+      particles.forEach(p => {
+        if (currentTheme === 'snow') {
+          ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255, 255, 255, ${p.opacity})`; 
+          ctx.fill();
+          p.x += p.speedX + Math.sin(angle + p.sway) * 0.5;
+          p.y += p.speedY;
+
+        } else if (currentTheme === 'stars') {
+          ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          const twinkle = p.opacity * (0.5 + Math.sin(angle*5 + p.sway)*0.5);
+          ctx.fillStyle = `rgba(230, 240, 255, ${twinkle})`; 
+          ctx.fill();
+          p.x -= 0.5; 
+
+        } else if (currentTheme === 'rain') {
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          const streakX = p.speedX * 2; 
+          const streakY = p.speedY * 2.5; 
+          ctx.lineTo(p.x + streakX, p.y + streakY);
+          ctx.strokeStyle = `rgba(180, 200, 230, ${p.opacity * 0.8})`;
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+          p.x += streakX; p.y += streakY;
+          
+        } else if (currentTheme === 'ice') {
+          if (p.radius > 1.5) { 
+            const size = p.radius * 6; 
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(angle * (p.speedX > 0 ? 2 : -2) + p.sway); 
+            ctx.fillStyle = `rgba(210, 240, 255, ${p.opacity * 0.4})`;
+            ctx.strokeStyle = `rgba(255, 255, 255, ${p.opacity * 0.8})`;
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.rect(-size/2, -size/2, size, size);
+            ctx.fill(); ctx.stroke();
+            ctx.strokeStyle = `rgba(255, 255, 255, ${p.opacity})`;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(-size/2 + 3, -size/2 + 3);
+            ctx.lineTo(-size/2 + 3 + size/3, -size/2 + 3);
+            ctx.stroke();
+            ctx.restore();
+            p.x += p.speedX * 0.5; p.y += p.speedY * 0.2; 
+          }
+        } else if (currentTheme === 'hearts') {
+          if (p.radius > 1.8) { 
+            const size = p.radius * 6; 
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(Math.sin(angle + p.sway) * 0.15); 
+            ctx.fillStyle = `rgba(220, 20, 60, ${p.opacity * 0.85})`;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.bezierCurveTo(-size/2, -size/2, -size, size/3, 0, size);
+            ctx.bezierCurveTo(size, size/3, size/2, -size/2, 0, 0);
+            ctx.fill();
+            ctx.restore();
+            p.y += p.speedY * 0.3; p.x += Math.sin(angle + p.sway) * 1.2; 
+          }
+        }
+
+        if (p.y > canvas.height) { p.y = -20; p.x = Math.random() * canvas.width; }
+        if (p.x > canvas.width + 20) { p.x = -20; p.y = Math.random() * canvas.height; }
+        if (p.x < -20) { p.x = canvas.width + 20; p.y = Math.random() * canvas.height; }
+      });
+    }
+    requestAnimationFrame(drawParticles);
+  }
+  drawParticles();
+
+
+  // ─── BULLETPROOF Z-INDEX BOOK LOGIC ───
+  let currentPaper = 1;
+  const maxPapers = 8; 
+  const papers = document.querySelectorAll('.paper');
+  let isFlipping = false; 
+
+  function updateZIndexes() {
+    papers.forEach((paper, i) => {
+      const paperNum = i + 1;
+      if (paperNum < currentPaper) {
+        paper.style.zIndex = paperNum;
+       } else {
+        paper.style.zIndex = maxPapers - paperNum + 1;
+      }
+    });
+  }
+  
+  updateZIndexes();
+
+  // Switch canvas themes based on the page spread
+  function updateAtmosphere() {
+    const ambientCanvas = document.getElementById('ambient-canvas');
+    if (currentPaper === 3) {
+      currentTheme = 'snow'; ambientCanvas.classList.add('active');
+    } else if (currentPaper === 4) {
+      currentTheme = 'stars'; ambientCanvas.classList.add('active');
+    } else if (currentPaper === 5) {
+      currentTheme = 'rain'; ambientCanvas.classList.add('active');
+    } else if (currentPaper === 6) {
+      currentTheme = 'stars'; ambientCanvas.classList.add('active');
+    } else if (currentPaper === 7) {
+      currentTheme = 'ice'; ambientCanvas.classList.add('active');
+    } else if (currentPaper === 8) {
+      currentTheme = 'hearts'; ambientCanvas.classList.add('active');
+    } else {
+      currentTheme = 'none'; ambientCanvas.classList.remove('active');
+    }
+  }
+
+  function goNext() {
+    if (currentPaper <= maxPapers) {
+      let paper = document.getElementById(`p${currentPaper}`);
+      paper.style.zIndex = maxPapers + 10; 
+      paper.classList.add("flipped");
+      currentPaper++;
+      setTimeout(updateZIndexes, 400); 
+      updateAtmosphere();
+    }
+  }
+
+  function goPrev() {
+    if (currentPaper > 1) {
+      currentPaper--;
+      let paper = document.getElementById(`p${currentPaper}`);
+      paper.style.zIndex = maxPapers + 10; 
+      paper.classList.remove("flipped");
+      setTimeout(updateZIndexes, 400);
+      updateAtmosphere();
+    }
+  }
+
+  function goToSpread(targetSpread) {
+  if (isFlipping || currentPaper === targetSpread) return;
+  isFlipping = true;
+
+  const step = () => {
+    if (currentPaper < targetSpread) {
+      goNext();
+    } else if (currentPaper > targetSpread) {
+      goPrev();
+    } else {
+      isFlipping = false;
+      return;
+    }
+    setTimeout(step, 250);
+  };
+
+  step();
+}
+</script>
+
+</body>
+</html>
