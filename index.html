@@ -7,36 +7,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 
 <style>
-  /* ─── ROTATE PROMPT (Force landscape on phones) ─── */
-  #rotate-prompt {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: #1a1a1a;
-    z-index: 99999;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: #dfc28d;
-    font-family: 'Lora', serif;
-    text-align: center;
-    padding: 2rem;
-  }
-  #rotate-prompt svg {
-    width: 60px;
-    margin-bottom: 1.5rem;
-    animation: rotateHint 2s ease-in-out infinite;
-  }
-  @keyframes rotateHint {
-    0%, 100% { transform: rotate(0deg); }
-    50% { transform: rotate(90deg); }
-  }
-  
-  @media (orientation: portrait) {
-    #rotate-prompt { display: flex !important; }
-    .scene, #global-controls { display: none !important; }
-  }
-
   /* ─── BASE RESET & SETUP ─── */
   *, *::before, *::after {
     box-sizing: border-box;
@@ -57,9 +27,11 @@
     user-select: none;
   }
 
+  /* ─── HIDE ROTATE PROMPT FOREVER ─── */
+  #rotate-prompt { display: none !important; }
+
   /* ─── THE MAGIC FIX: 3D BOOK CONTAINER ─── */
   .scene { 
-    /* Lock it to exact laptop proportions */
     width: 1000px; 
     height: 600px; 
     flex-shrink: 0;
@@ -68,12 +40,54 @@
     justify-content: center; 
     align-items: center; 
     z-index: 10; 
-    
-    /* This formula perfectly zooms the 1000x600 laptop ratio to fit ANY screen size without messing up the layout */
-    transform: scale(min(calc(95vw / 1000), calc(90vh / 600), 1));
     transform-origin: center;
+    /* Default scaling for laptops and landscape mode */
+    transform: scale(min(calc(95vw / 1000), calc(90vh / 600), 1));
   }
   .book { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; }
+
+  /* ─── GLOBAL NAVIGATION ARROWS (Default Left/Right) ─── */
+  #global-controls {
+    position: fixed; top: 50%; left: 0; width: 100%;
+    display: flex; justify-content: space-between; padding: 0 3vw;
+    transform: translateY(-50%); z-index: 9999; pointer-events: none; 
+  }
+  .global-arrow {
+    pointer-events: auto; width: 60px; height: 60px; border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #e6cc98; font-size: 1.8rem; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; backdrop-filter: blur(5px); transition: all 0.3s ease;
+  }
+  .global-arrow:hover { background: rgba(255, 255, 255, 0.15); transform: scale(1.1); color: #fff; }
+
+  /* ─── PORTRAIT MODE: LETTERBOX & UP/DOWN ARROWS ─── */
+  @media (orientation: portrait) {
+    /* 1. Zoom the book out to perfectly fit the width of the phone */
+    .scene {
+      transform: scale(calc(96vw / 1000)) !important;
+    }
+
+    /* 2. Move the controls to the empty space above and below the book */
+    #global-controls {
+      flex-direction: column;
+      height: 85vh; /* Stretch container from top to bottom */
+      padding: 0;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* 3. Rotate the Left Arrow to point UP (Previous Page) */
+    .global-arrow:first-child {
+      transform: rotate(90deg);
+    }
+    .global-arrow:first-child:hover { transform: rotate(90deg) scale(1.1); color: #fff; }
+
+    /* 4. Rotate the Right Arrow to point DOWN (Next Page) */
+    .global-arrow:last-child {
+      transform: rotate(90deg);
+    }
+    .global-arrow:last-child:hover { transform: rotate(90deg) scale(1.1); color: #fff; }
+  }
 
   /* ─── THE PAGES ─── */
   .paper { position: absolute; width: 50%; height: 100%; top: 0; right: 0; transform-style: preserve-3d; transform-origin: left center; transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1); pointer-events: none; }
@@ -120,20 +134,6 @@
     font-family: 'Lora', serif; text-transform: uppercase; letter-spacing: 1px;
   }
   .reload-btn:hover { background: #e63946; color: #fff; box-shadow: 0 0 15px rgba(230, 57, 70, 0.5); }
-
-  /* ─── BULLETPROOF GLOBAL NAVIGATION ARROWS ─── */
-  #global-controls {
-    position: fixed; top: 50%; left: 0; width: 100%;
-    display: flex; justify-content: space-between; padding: 0 3vw;
-    transform: translateY(-50%); z-index: 9999; pointer-events: none; 
-  }
-  .global-arrow {
-    pointer-events: auto; width: 60px; height: 60px; border-radius: 50%;
-    background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15);
-    color: #e6cc98; font-size: 1.8rem; display: flex; align-items: center; justify-content: center;
-    cursor: pointer; backdrop-filter: blur(5px); transition: all 0.3s ease;
-  }
-  .global-arrow:hover { background: rgba(255, 255, 255, 0.15); transform: scale(1.1); color: #fff; }
 
   /* ─── AMBIENT CANVAS (SNOW / STARS / RAIN / ICE / HEARTS) ─── */
   #ambient-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity 1.5s ease-in-out; z-index: 1; }
