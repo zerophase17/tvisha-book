@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 
 <style>
-  /* ─── RESPONSIVE MOBILE & ROTATE PROMPT ─── */
+  /* ─── ROTATE PROMPT (Force landscape on phones) ─── */
   #rotate-prompt {
     display: none;
     position: fixed;
@@ -31,59 +31,10 @@
     0%, 100% { transform: rotate(0deg); }
     50% { transform: rotate(90deg); }
   }
-  #rotate-prompt p {
-    font-size: 1.2rem;
-    color: #a38c62;
-    font-style: italic;
-  }
-
-  /* Force landscape on mobile devices */
-  @media (orientation: portrait) and (max-width: 900px) {
+  
+  @media (orientation: portrait) {
     #rotate-prompt { display: flex !important; }
     .scene, #global-controls { display: none !important; }
-    body { overflow: hidden; }
-  }
-
-  /* Mobile Landscape - Scale Book to Fit */
-  @media (orientation: landscape) and (max-height: 600px), 
-         (orientation: landscape) and (max-width: 950px) {
-    .scene {
-      width: 96vw;
-      height: 94vh;
-      max-width: none;
-      max-height: none;
-    }
-    .page-content { padding: 1rem; }
-    h2 { font-size: 1.5rem; margin-bottom: 0.1rem; }
-    .cover-front h1 { font-size: 2rem; }
-    .date-label { font-size: 0.8rem; margin-bottom: 0.5rem; padding-bottom: 0.2rem; }
-    
-    /* Shrink Text & Journal Grids */
-    .journal-text { font-size: 0.95rem; line-height: 22px; margin-top: 10px; }
-    .ruled-lines { 
-      background: repeating-linear-gradient( transparent, transparent 21px, #d6ccc0 21px, #d6ccc0 22px ); 
-      line-height: 22px; 
-      margin-bottom: 1rem;
-    }
-    
-    /* Resize UI and Images */
-    .global-arrow { width: 40px; height: 40px; font-size: 1.2rem; }
-    .polaroid-frame { padding: 8px 8px 15px 8px; }
-    .polaroid-frame img { max-height: 45vh; }
-    .polaroid-caption { font-size: 0.9rem; margin-top: 8px; }
-    .photo-booth img { max-height: 55vh; }
-    .index-list li { font-size: 0.9rem; margin-bottom: 0.5rem; }
-    
-    /* Resize Final Proposal Page */
-    .proposal-special { padding: 1rem; }
-    .proposal-special h2 { font-size: 1.8rem; }
-    .proposal-special .quote { font-size: 1rem; }
-    #btn-yes, #btn-no { padding: 5px 15px; font-size: 0.9rem; }
-    .proposal-photo-frame img { max-height: 35vh; }
-    
-    /* Scale down decorations so they don't cover text */
-    .lily-deco { width: 50px; height: 50px; }
-    .line-art { transform: scale(0.6); transform-origin: center; }
   }
 
   /* ─── BASE RESET & SETUP ─── */
@@ -105,6 +56,31 @@
     color: #332b26;
     user-select: none;
   }
+
+  /* ─── THE MAGIC FIX: 3D BOOK CONTAINER ─── */
+  .scene { 
+    /* Lock it to exact laptop proportions */
+    width: 1000px; 
+    height: 600px; 
+    flex-shrink: 0;
+    perspective: 1500px; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    z-index: 10; 
+    
+    /* This formula perfectly zooms the 1000x600 laptop ratio to fit ANY screen size without messing up the layout */
+    transform: scale(min(calc(95vw / 1000), calc(90vh / 600), 1));
+    transform-origin: center;
+  }
+  .book { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; }
+
+  /* ─── THE PAGES ─── */
+  .paper { position: absolute; width: 50%; height: 100%; top: 0; right: 0; transform-style: preserve-3d; transform-origin: left center; transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1); pointer-events: none; }
+  .front, .back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; background-color: #f5f0e6; pointer-events: auto; overflow: hidden; }
+  .front { background: linear-gradient(to right, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0) 8%), #f5f0e6; }
+  .back { transform: rotateY(180deg); background: linear-gradient(to left, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0) 8%), #f5f0e6; }
+  .flipped { transform: rotateY(-180deg); }
 
   /* ─── MAGICAL LOCK SCREEN & ERROR SCREEN ─── */
   #lock-screen {
@@ -162,17 +138,6 @@
   /* ─── AMBIENT CANVAS (SNOW / STARS / RAIN / ICE / HEARTS) ─── */
   #ambient-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity 1.5s ease-in-out; z-index: 1; }
   #ambient-canvas.active { opacity: 1; }
-
-  /* ─── 3D BOOK CONTAINER ─── */
-  .scene { width: 90vw; max-width: 1000px; height: 75vh; max-height: 600px; perspective: 1500px; display: flex; justify-content: center; align-items: center; z-index: 10; }
-  .book { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; }
-
-  /* ─── THE PAGES ─── */
-  .paper { position: absolute; width: 50%; height: 100%; top: 0; right: 0; transform-style: preserve-3d; transform-origin: left center; transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1); pointer-events: none; }
-  .front, .back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; background-color: #f5f0e6; pointer-events: auto; overflow: hidden; }
-  .front { background: linear-gradient(to right, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0) 8%), #f5f0e6; }
-  .back { transform: rotateY(180deg); background: linear-gradient(to left, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0) 8%), #f5f0e6; }
-  .flipped { transform: rotateY(-180deg); }
 
   /* ─── INNER PAGE LAYOUT ─── */
   .page-content { width: 100%; height: 100%; padding: 3rem; display: flex; flex-direction: column; position: relative; z-index: 2; }
