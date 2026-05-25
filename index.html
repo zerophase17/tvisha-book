@@ -6,6 +6,7 @@
 <title>Happy 1 Month, Tvisha</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 <style>
+  
   /* ─── BASE RESET & SETUP ─── */
   *, *::before, *::after {
     box-sizing: border-box;
@@ -25,75 +26,6 @@
     color: #332b26;
     user-select: none;
   }
-
-  /* ─── HIDE ROTATE PROMPT FOREVER ─── */
-  #rotate-prompt { display: none !important; }
-
-  /* ─── THE MAGIC FIX: 3D BOOK CONTAINER ─── */
-  .scene { 
-    width: 1000px; 
-    height: 600px; 
-    flex-shrink: 0;
-    perspective: 1500px; 
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    z-index: 10; 
-    transform-origin: center;
-    /* Default scaling for laptops and landscape mode */
-    transform: scale(min(calc(95vw / 1000), calc(90vh / 600), 1));
-  }
-  .book { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; }
-
-  /* ─── GLOBAL NAVIGATION ARROWS (Default Left/Right) ─── */
-  #global-controls {
-    position: fixed; top: 50%; left: 0; width: 100%;
-    display: flex; justify-content: space-between; padding: 0 3vw;
-    transform: translateY(-50%); z-index: 9999; pointer-events: none; 
-  }
-  .global-arrow {
-    pointer-events: auto; width: 60px; height: 60px; border-radius: 50%;
-    background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15);
-    color: #e6cc98; font-size: 1.8rem; display: flex; align-items: center; justify-content: center;
-    cursor: pointer; backdrop-filter: blur(5px); transition: all 0.3s ease;
-  }
-  .global-arrow:hover { background: rgba(255, 255, 255, 0.15); transform: scale(1.1); color: #fff; }
-
-  /* ─── PORTRAIT MODE: LETTERBOX & UP/DOWN ARROWS ─── */
-  @media (orientation: portrait) {
-    /* 1. Zoom the book out to perfectly fit the width of the phone */
-    .scene {
-      transform: scale(calc(96vw / 1000)) !important;
-    }
-
-    /* 2. Move the controls to the empty space above and below the book */
-    #global-controls {
-      flex-direction: column;
-      height: 85vh; /* Stretch container from top to bottom */
-      padding: 0;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    /* 3. Rotate the Left Arrow to point UP (Previous Page) */
-    .global-arrow:first-child {
-      transform: rotate(90deg);
-    }
-    .global-arrow:first-child:hover { transform: rotate(90deg) scale(1.1); color: #fff; }
-
-    /* 4. Rotate the Right Arrow to point DOWN (Next Page) */
-    .global-arrow:last-child {
-      transform: rotate(90deg);
-    }
-    .global-arrow:last-child:hover { transform: rotate(90deg) scale(1.1); color: #fff; }
-  }
-
-  /* ─── THE PAGES ─── */
-  .paper { position: absolute; width: 50%; height: 100%; top: 0; right: 0; transform-style: preserve-3d; transform-origin: left center; transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1); pointer-events: none; }
-  .front, .back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; background-color: #f5f0e6; pointer-events: auto; overflow: hidden; }
-  .front { background: linear-gradient(to right, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0) 8%), #f5f0e6; }
-  .back { transform: rotateY(180deg); background: linear-gradient(to left, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0) 8%), #f5f0e6; }
-  .flipped { transform: rotateY(-180deg); }
 
   /* ─── MAGICAL LOCK SCREEN & ERROR SCREEN ─── */
   #lock-screen {
@@ -134,9 +66,34 @@
   }
   .reload-btn:hover { background: #e63946; color: #fff; box-shadow: 0 0 15px rgba(230, 57, 70, 0.5); }
 
+  /* ─── BULLETPROOF GLOBAL NAVIGATION ARROWS ─── */
+  #global-controls {
+    position: fixed; top: 50%; left: 0; width: 100%;
+    display: flex; justify-content: space-between; padding: 0 3vw;
+    transform: translateY(-50%); z-index: 9999; pointer-events: none; 
+  }
+  .global-arrow {
+    pointer-events: auto; width: 60px; height: 60px; border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #e6cc98; font-size: 1.8rem; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; backdrop-filter: blur(5px); transition: all 0.3s ease;
+  }
+  .global-arrow:hover { background: rgba(255, 255, 255, 0.15); transform: scale(1.1); color: #fff; }
+
   /* ─── AMBIENT CANVAS (SNOW / STARS / RAIN / ICE / HEARTS) ─── */
   #ambient-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity 1.5s ease-in-out; z-index: 1; }
   #ambient-canvas.active { opacity: 1; }
+
+  /* ─── 3D BOOK CONTAINER ─── */
+  .scene { width: 90vw; max-width: 1000px; height: 75vh; max-height: 600px; perspective: 1500px; display: flex; justify-content: center; align-items: center; z-index: 10; }
+  .book { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; }
+
+  /* ─── THE PAGES ─── */
+  .paper { position: absolute; width: 50%; height: 100%; top: 0; right: 0; transform-style: preserve-3d; transform-origin: left center; transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1); pointer-events: none; }
+  .front, .back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; background-color: #f5f0e6; pointer-events: auto; overflow: hidden; }
+  .front { background: linear-gradient(to right, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0) 8%), #f5f0e6; }
+  .back { transform: rotateY(180deg); background: linear-gradient(to left, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0) 8%), #f5f0e6; }
+  .flipped { transform: rotateY(-180deg); }
 
   /* ─── INNER PAGE LAYOUT ─── */
   .page-content { width: 100%; height: 100%; padding: 3rem; display: flex; flex-direction: column; position: relative; z-index: 2; }
@@ -219,6 +176,7 @@
   .all-drawings-bg { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; opacity: 0.55; }
   .mini-art { position: absolute; transform: scale(0.4); opacity: 0.7; }
   .mini-flower { position: absolute; opacity: 0.6; width: 45px; }
+
 </style>
 </head>
 <body>
@@ -236,7 +194,7 @@
   
   <div id="error-screen">
     <h1>Access Denied</h1>
-    <p>ITS NOT FOR CRAZY BITCH TO ACCESS LEARN SOME MANNERS, also go get a life.</p>
+    <p>how will you tell my parents that you love me?</p>
     <button class="reload-btn" onclick="location.reload()">Reload</button>
   </div>
 </div>
@@ -383,7 +341,7 @@
 
         <div class="page-content" style="display: flex; flex-direction: column;">
           <h2 style="position: relative; z-index: 5;">April 5th</h2>
-          <p class="date-label" style="position: relative; z-index: 5;">Chapter Two · First Kiss & Starry Skies</p>
+          <p class="date-label" style="position: relative; z-index: 5;">Chapter Two · First Kiss & My ass in the park</p>
 
           <div class="ruled-lines" style="width: 100%; min-height: 70px; margin-bottom: 1rem; flex-shrink: 0; padding: 0 10px;">
             <p class="journal-text" style="font-size: 1.15rem; margin-top: 0; padding-top: 5px;">
@@ -450,7 +408,7 @@
 
         <div class="page-content" style="display: flex; flex-direction: column;">
           <h2 style="position: relative; z-index: 5;">April 7th</h2>
-          <p class="date-label" style="position: relative; z-index: 5;">Chapter Three · Three Times Lucky</p>
+          <p class="date-label" style="position: relative; z-index: 5;">Chapter Three · The slide was something.</p>
           
           <div class="ruled-lines" style="width: 100%; min-height: 70px; margin-bottom: 1rem; flex-shrink: 0; padding: 0 10px;">
              <p class="journal-text" style="font-size: 1.15rem; margin-top: 0; padding-top: 5px;">
@@ -493,7 +451,7 @@
 
         <div class="page-content" style="display: flex; flex-direction: column;">
           <h2 style="position: relative; z-index: 5;">April 20th</h2>
-          <p class="date-label" style="position: relative; z-index: 5;">Chapter Four · Pizza & Stars</p>
+          <p class="date-label" style="position: relative; z-index: 5;">Chapter Four · The cafe</p>
           
           <div class="ruled-lines" style="width: 100%; min-height: 96px; margin-bottom: 1rem; flex-shrink: 0; padding: 0 10px;">
              <p class="journal-text" style="font-size: 1.15rem; margin-top: 0; padding-top: 5px;">
@@ -557,7 +515,7 @@
 
         <div class="page-content" style="display: flex; flex-direction: column;">
           <h2 style="position: relative; z-index: 5;">April 23rd</h2>
-          <p class="date-label" style="position: relative; z-index: 5;">Chapter Five · Ice & Everything Nice</p>
+          <p class="date-label" style="position: relative; z-index: 5;">Chapter Five ·Ice + Police</p>
           
           <div class="ruled-lines" style="width: 100%; min-height: 96px; margin-bottom: 1rem; flex-shrink: 0; padding: 0 10px;">
              <p class="journal-text" style="font-size: 1.15rem; margin-top: 0; padding-top: 5px; line-height: 1.6;">
@@ -660,56 +618,29 @@
   const lockContent = document.querySelector('.lock-content');
   const errorScreen = document.getElementById('error-screen');
   
-// ─── HASHED PASSWORD LOCK ───
-async function hashString(str) {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(str);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
+secretKeyInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      const val = secretKeyInput.value.toLowerCase().replace(/[^a-z ]/g, '').replace(/\s+/g, ' ').trim();
+      const isCorrect = (val === 'nanu mourya na preetisuttene' || val === 'nano mourya na preetisuttene' || val === 'naanu mourya na preetisuttene');
+      
+      // Tvisha Bypass — decoy message ONLY, no access
+      if (val === 'tvisha') {
+        lockContent.innerHTML = '<h2 style="color: #dfc28d; font-family: Lora, serif; font-size: 1.6rem; text-transform: none; text-shadow: none;">Nothing here was a booby trap your good.</h2>';
+        // No unlock — lockScreen stays visible
+        return;
+      }
 
-// Pre-computed SHA-256 hashes (generated from the correct phrases)
-const CORRECT_HASHES = new Set([
-  'f2a3c1d4e8b7f9a2c3e1d4f8b2a7c9e3d1f4b8a2c7e9d3f1b4a8c2e7d9f3b1a4', // placeholder
-]);
-
-// We compute real hashes at runtime on first load
-(async () => {
-  const phrases = [
-    'nanu mourya na preetisuttene',
-    'nano mourya na preetisuttene',
-    'naanu mourya na preetisuttene',
-  ];
-  for (const phrase of phrases) {
-    const h = await hashString(phrase);
-    CORRECT_HASHES.add(h);
-  }
-  // Remove placeholder
-  CORRECT_HASHES.delete('f2a3c1d4e8b7f9a2c3e1d4f8b2a7c9e3d1f4b8a2c7e9d3f1b4a8c2e7d9f3b1a4');
-})();
-
-secretKeyInput.addEventListener('keydown', async (e) => {
-  if (e.key === 'Enter') {
-    const val = secretKeyInput.value.toLowerCase().replace(/[^a-z ]/g, '').replace(/\s+/g, ' ').trim();
-
-    // Tvisha decoy — message only, no access
-    if (val === 'tvisha') {
-      lockContent.innerHTML = '<h2 style="color: #dfc28d; font-family: Lora, serif; font-size: 1.6rem; text-transform: none; text-shadow: none;">Nothing here was a booby trap your good.</h2>';
-      return;
+      // Real unlock
+      if (isCorrect) {
+        lockScreen.classList.add('lock-hidden');
+        setTimeout(() => { lockScreen.style.display = 'none'; }, 1500); 
+      } else {
+        // Wrong answer — error screen
+        lockContent.style.display = 'none';
+        errorScreen.style.display = 'flex';
+      }
     }
-
-    const inputHash = await hashString(val);
-
-    if (CORRECT_HASHES.has(inputHash)) {
-      lockScreen.classList.add('lock-hidden');
-      setTimeout(() => { lockScreen.style.display = 'none'; }, 1500);
-    } else {
-      lockContent.style.display = 'none';
-      errorScreen.style.display = 'flex';
-    }
-  }
-});
+  });
 
   // ─── AMBIENT CANVAS EFFECT (THEME SWITCHER) ───
   const canvas = document.getElementById('ambient-canvas');
@@ -878,23 +809,16 @@ secretKeyInput.addEventListener('keydown', async (e) => {
   }
 
   function goToSpread(targetSpread) {
-  if (isFlipping || currentPaper === targetSpread) return;
-  isFlipping = true;
+    if (isFlipping || currentPaper === targetSpread) return;
+    isFlipping = true;
 
-  const step = () => {
-    if (currentPaper < targetSpread) {
-      goNext();
-    } else if (currentPaper > targetSpread) {
-      goPrev();
-    } else {
-      isFlipping = false;
-      return;
-    }
-    setTimeout(step, 250);
-  };
-
-  step();
-}
+    const flipDelay = 200; 
+    const flipInterval = setInterval(() => {
+      if (currentPaper < targetSpread) { goNext(); } 
+      else if (currentPaper > targetSpread) { goPrev(); } 
+      else { clearInterval(flipInterval); isFlipping = false; }
+    }, flipDelay);
+  }
 </script>
 
 </body>
